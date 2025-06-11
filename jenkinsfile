@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven_3.9.10'
+        git 'Default'
+    }
+
+    stages {
+        stage('Checkout and Build') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/sajidazahir/Devops-automation.git',
+                        credentialsId: 'github-creds'
+                    ]]
+                ])
+
+                sh 'mvn clean install'
+            }
+        }
+      /*  stage ("Build docker image")
+        {
+            steps{
+                sh 'docker build -t devops-demo .'
+            } //steps build image
+      //  } //stage build image
+       // stage ('Push image to Docker Hub')
+        {
+            steps{
+                script{
+                withCredentials([file(credentialsId: '', variable: 'dockerhubpwd')]) {
+                    sh 'docker login -u sajidauop@gmail.com -p ${dockerhubpwd}'
+    // some block
+                 }   
+                 sh 'docker push devops-demo'
+                } //script push image
+            }//steps push image
+        }//stage push image
+    }*/
+}
