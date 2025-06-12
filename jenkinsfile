@@ -5,6 +5,9 @@ pipeline {
         maven 'maven_3.9.10'
         git 'Default'
     }
+   environment {
+        IMAGE_NAME = 'sajidab/devops-demo:latest'
+    }
 
     stages {
         stage('Checkout and Build') {
@@ -20,24 +23,32 @@ pipeline {
 
                 sh 'mvn clean install'
             }
-        }
-      /*  stage ("Build docker image")
+        } //stage checkout & build
+   
+     stage ("Build docker image")
         {
             steps{
                 sh 'docker build -t devops-demo .'
             } //steps build image
-      //  } //stage build image
-       // stage ('Push image to Docker Hub')
-        {
-            steps{
-                script{
-                withCredentials([file(credentialsId: '', variable: 'dockerhubpwd')]) {
-                    sh 'docker login -u sajidauop@gmail.com -p ${dockerhubpwd}'
-    // some block
-                 }   
-                 sh 'docker push devops-demo'
-                } //script push image
-            }//steps push image
-        }//stage push image
-    }*/
+       } //stage build image
+       
+          stage('Login and Push to Docker Hub') {
+            steps {
+                script {
+               withCredentials([usernamePassword(credentialsId: 'dockercred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            
+                    # Tag image properly using your Docker Hub username
+                    docker tag devops-demo $DOCKER_USER/devops-demo:latest
+            
+                    # Push the correctly tagged image
+                    docker push $DOCKER_USER/devops-demo:latest
+    '''
+            }
+                }//script
+               
+            }//steps docker hub
+        }//stage Docker hub
+  }//stages
 }
