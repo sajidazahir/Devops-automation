@@ -1,6 +1,10 @@
 pipeline {
     agent any
-
+     options {
+        timeout(time: 15, unit: 'MINUTES')   // auto-abort if it runs over 15 min
+        buildDiscarder(logRotator(numToKeepStr: '5')) // keep only last 5 builds
+        disableConcurrentBuilds()            // no overlapping builds
+    }
     tools {
         maven 'maven_3.9.10'
         git 'Default'
@@ -44,7 +48,7 @@ pipeline {
             
                     # Push the correctly tagged image
                     docker push $DOCKER_USER/devops-demo:latest
-    '''
+                   '''
             }
                 }//script
                
